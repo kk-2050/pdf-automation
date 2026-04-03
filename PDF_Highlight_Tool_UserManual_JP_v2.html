@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Keyword Highlight Tool — ユーザーマニュアル v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", "Meiryo", sans-serif; font-size: 15px; line-height: 1.8; color: #1a1a1a; background: #f7f8fa; }
+  .page { max-width: 900px; margin: 0 auto; background: #fff; }
+  .cover { background: #1F4E79; color: #fff; padding: 48px 48px 40px; }
+  .cover h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .cover .sub { font-size: 15px; color: #9FE1CB; margin-bottom: 24px; }
+  .cover-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; color: #fff; }
+  .toc { background: #EBF4FB; border-left: 4px solid #1F4E79; padding: 24px 32px; }
+  .toc h2 { font-size: 14px; color: #1F4E79; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 6px 0; }
+  .toc a { color: #1F4E79; text-decoration: none; font-size: 14px; }
+  .toc a:hover { text-decoration: underline; }
+  .content { padding: 0 48px 48px; }
+  .section { margin-top: 48px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #1F4E79; }
+  .section-num { width: 36px; height: 36px; background: #1F4E79; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .section-title { font-size: 20px; font-weight: 700; color: #1F4E79; }
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step { display: flex; gap: 16px; align-items: flex-start; background: #f7f8fa; border-radius: 10px; padding: 16px 20px; border: 1px solid #e0e8f0; }
+  .step-num { width: 30px; height: 30px; background: #5DCAA5; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+  .step-content h3 { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .step-content p { font-size: 14px; color: #444; }
+  .step-content code { background: #e8f0f7; padding: 1px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; color: #1F4E79; }
+  .box { border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 14px; }
+  .box-info { background: #EBF4FB; border-left: 4px solid #1F4E79; }
+  .box-warn { background: #FFF8E1; border-left: 4px solid #F59E0B; }
+  .box-ok   { background: #E8F5E9; border-left: 4px solid #5DCAA5; }
+  .box-title { font-weight: 700; margin-bottom: 4px; }
+  .box-info .box-title { color: #1F4E79; }
+  .box-warn .box-title { color: #B45309; }
+  .box-ok   .box-title { color: #0F6E56; }
+  .gui-mock { background: #1E1E1E; border-radius: 12px; padding: 20px; margin: 20px 0; font-family: "Segoe UI", sans-serif; }
+  .gui-header { background: #2A2A2A; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin: -20px -20px 16px; border-radius: 12px 12px 0 0; }
+  .gui-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .gui-title { color: #5DCAA5; font-weight: 700; font-size: 14px; }
+  .gui-sub { color: #666; font-size: 11px; margin-left: 4px; }
+  .gui-label { font-size: 11px; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .gui-num { background: #5DCAA5; color: #1a1a1a; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .gui-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .gui-input { flex: 1; background: #2A2A2A; border: 1px solid #3A3A3A; border-radius: 6px; padding: 8px 12px; color: #ccc; font-size: 12px; font-family: Consolas, monospace; }
+  .gui-btn { background: transparent; border: 1px solid #5DCAA5; color: #5DCAA5; border-radius: 6px; padding: 8px 14px; font-size: 12px; white-space: nowrap; }
+  .mode-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .mode-card { flex: 1; border-radius: 8px; padding: 12px 14px; }
+  .mode-card.active { border: 2px solid #5DCAA5; background: #1a2e28; }
+  .mode-card.inactive { border: 2px solid #3A3A3A; background: #2A2A2A; }
+  .mode-radio { width: 14px; height: 14px; border-radius: 50%; background: #5DCAA5; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; }
+  .mode-radio-dot { width: 6px; height: 6px; border-radius: 50%; background: #1a2e28; }
+  .mode-radio-empty { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #444; display: inline-flex; margin-right: 6px; }
+  .mode-title { font-size: 12px; font-weight: 700; color: #F0F0F0; display: flex; align-items: center; margin-bottom: 4px; }
+  .mode-desc { font-size: 11px; color: #888; padding-left: 20px; }
+  .all-customers { background: #1a2e28; border: 1px solid #2a4a3a; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+  .ac-title { font-size: 11px; color: #5DCAA5; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .ac-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 0.5px solid #2a3a30; }
+  .ac-row:last-child { border-bottom: none; }
+  .ac-name { font-size: 12px; color: #F0F0F0; font-weight: 700; width: 90px; flex-shrink: 0; }
+  .ac-kw { font-size: 11px; color: #888; flex: 1; }
+  .ac-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+  .badge-blue { background: #1a3a5c; color: #6CB4E8; }
+  .badge-yellow { background: #3a2e00; color: #EF9F27; }
+  .badge-green { background: #0a2e1a; color: #5DCAA5; }
+  .ac-pages { font-size: 10px; color: #666; white-space: nowrap; }
+  .gui-chk { font-size: 12px; color: #888; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .chk-box { width: 14px; height: 14px; border: 1px solid #5DCAA5; border-radius: 3px; background: #1a2e28; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .chk-check { color: #5DCAA5; font-size: 10px; }
+  .gui-run { background: #5DCAA5; color: #1a1a1a; border: none; border-radius: 6px; padding: 11px 24px; font-size: 13px; font-weight: 700; width: 100%; margin-bottom: 14px; text-align: center; }
+  .gui-run-inactive { background: #2A2A2A; color: #888; border: none; border-radius: 6px; padding: 11px 24px; font-size: 13px; font-weight: 700; width: 100%; margin-bottom: 14px; text-align: center; }
+  .gui-progress { background: #3A3A3A; border-radius: 2px; height: 3px; margin-bottom: 14px; overflow: hidden; }
+  .gui-progress-bar { background: #5DCAA5; height: 100%; width: 100%; }
+  .gui-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+  .gui-stat { background: #2A2A2A; border-radius: 6px; padding: 10px; text-align: center; }
+  .gui-stat-num { font-size: 20px; font-weight: 700; }
+  .gui-stat-label { font-size: 10px; color: #888; margin-top: 2px; }
+  .gui-log { background: #2A2A2A; border-radius: 6px; padding: 12px; font-family: Consolas, monospace; font-size: 11px; }
+  .gui-log-title { color: #888; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .log-ok   { color: #5DCAA5; }
+  .log-skip { color: #EF9F27; }
+  .log-err  { color: #F09595; }
+  .log-info { color: #666; }
+  .log-head { color: #5DCAA5; font-weight: bold; }
+  .excel-mock { border: 1px solid #ccc; border-radius: 8px; overflow: hidden; margin: 16px 0; }
+  .excel-header { background: #217346; color: #fff; padding: 8px 14px; font-size: 13px; font-weight: 700; }
+  .excel-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .excel-table th { background: #1F4E79; color: #fff; padding: 7px 10px; text-align: left; white-space: nowrap; }
+  .excel-table td { padding: 7px 10px; border-bottom: 1px solid #e0e0e0; white-space: nowrap; }
+  .excel-table tr:nth-child(even) td { background: #EBF4FB; }
+  .excel-table tr:nth-child(odd) td { background: #fff; }
+  .folder-tree { background: #1E1E1E; color: #ccc; border-radius: 8px; padding: 16px 20px; font-family: Consolas, monospace; font-size: 13px; line-height: 2; margin: 16px 0; }
+  .ft-folder { color: #5DCAA5; }
+  .ft-file   { color: #9FE1CB; }
+  .ft-comment{ color: #666; }
+  .status-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+  .status-table th { background: #1F4E79; color: #fff; padding: 10px 14px; text-align: left; }
+  .status-table td { padding: 10px 14px; border-bottom: 1px solid #e0e0e0; }
+  .status-table tr:nth-child(even) td { background: #f7f8fa; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .tag-ok   { background: #E8F5E9; color: #0F6E56; }
+  .tag-skip { background: #FFF8E1; color: #B45309; }
+  .tag-err  { background: #FFEBEE; color: #B71C1C; }
+  .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+  .color-chip { border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; text-align: center; border: 1px solid rgba(0,0,0,0.1); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+  .flow-item { background: #EBF4FB; border: 1px solid #1F4E79; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1F4E79; text-align: center; flex: 1; min-width: 80px; }
+  .flow-arrow { color: #5DCAA5; font-size: 20px; padding: 0 6px; flex-shrink: 0; }
+  .footer { background: #1F4E79; color: #9FE1CB; padding: 24px 48px; font-size: 13px; margin-top: 48px; }
+  .footer strong { color: #fff; }
+  .new-badge { background: #5DCAA5; color: #1a1a1a; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="cover">
+  <h1>📄 PDF Keyword Highlight Tool</h1>
+  <p class="sub">ユーザーマニュアル v2.0</p>
+  <div class="cover-badges">
+    <span class="badge">Version 2.0</span>
+    <span class="badge">Windows対応</span>
+    <span class="badge">Python 3.10+</span>
+    <span class="badge">初心者でも使えます</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#s1">このツールでできること</a></li>
+    <li><a href="#s2">セットアップ（初回だけ）</a></li>
+    <li><a href="#s3">フォルダの準備</a></li>
+    <li><a href="#s4">Excelマスターファイルの設定</a></li>
+    <li><a href="#s5">ツールの使い方 — Single folderモード</a></li>
+    <li><a href="#s6">ツールの使い方 — All customersモード</a></li>
+    <li><a href="#s7">上書き処理（Overwrite）</a></li>
+    <li><a href="#s8">処理結果の見方</a></li>
+    <li><a href="#s9">ハイライト色の一覧</a></li>
+    <li><a href="#s10">よくある質問</a></li>
+    <li><a href="#s11">エラーが出たときは</a></li>
+  </ol>
+</div>
+
+<div class="content">
+
+<!-- SECTION 1 -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div class="section-title">このツールでできること</div>
+  </div>
+  <p>このツールは、<strong>PDFファイルの中にあるキーワードを自動で探して、色をつけて（ハイライト）、別のフォルダに移動する</strong>ツールです。</p>
+  <br>
+  <div class="flow">
+    <div class="flow-item">📁 Input<br><small>PDFを入れる</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">🔍 検索<br><small>キーワードを探す</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">🖍 ハイライト<br><small>色をつける</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">📁 Done<br><small>移動する</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">📊 ログ<br><small>1つのExcelに記録</small></div>
+  </div>
+  <div class="box box-ok">
+    <div class="box-title">✅ v2.0の新機能</div>
+    <strong>Single folder / All customers</strong> モード切り替えに対応。<br>
+    <strong>Overwrite（上書き）</strong> オプションで再処理が簡単に。<br>
+    <strong>共通ログファイル</strong> — 全顧客の処理結果を1つのExcelで管理。<br>
+    Runするたびに<strong>Excelを自動再読み込み</strong> — ツールを再起動せず設定変更が反映される。
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div class="section-title">セットアップ（初回だけ）</div>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Pythonをインストールする</h3>
+        <p><a href="https://www.python.org" style="color:#1F4E79;">python.org</a> からPython 3.10以上をダウンロードしてインストール。<br>
+        インストール時に <code>Add Python to PATH</code> にチェックを入れてください。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>ZIPファイルを解凍して C:\PDFTool\ に置く</h3>
+        <p><code>pdf_highlight_tool_v3.zip</code> を右クリック →「すべて展開」→ <code>C:\PDFTool\</code> に解凍します。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>必要なライブラリをインストールする</h3>
+        <p>コマンドプロンプトを開いて：</p>
+        <p style="margin-top:8px;"><code>cd C:\PDFTool</code></p>
+        <p style="margin-top:4px;"><code>python -m pip install -r requirements.txt</code></p>
+      </div>
+    </div>
+  </div>
+  <div class="box box-info">
+    <div class="box-title">💡 コマンドプロンプトの開き方</div>
+    Windowsキー → 「cmd」と入力 → Enter を押す。
+  </div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div class="section-title">フォルダの準備</div>
+  </div>
+  <p>以下のフォルダ構成を作ってください。</p>
+  <div class="folder-tree">
+    <div><span class="ft-folder">C:\PDFs\</span></div>
+    <div>&nbsp;&nbsp;<span class="ft-file">pdf_highlight_log.xlsx</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment">← 全顧客共通ログ（ここだけ確認すればOK）</span></div>
+    <div>&nbsp;&nbsp;<span class="ft-folder">CustomerA\</span></div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-folder">Input\</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment">← PDFをここに入れる</span></div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-folder">Done\</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment">← ハイライト済PDFが移動される</span></div>
+    <div>&nbsp;&nbsp;<span class="ft-folder">CustomerB\</span></div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-folder">Input\</span></div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-folder">Done\</span></div>
+    <div>&nbsp;&nbsp;<span class="ft-folder">CustomerC\</span></div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-folder">Input\</span></div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-folder">Done\</span></div>
+  </div>
+  <div class="box box-ok">
+    <div class="box-title">✅ ログファイルは1つだけ</div>
+    <code>C:\PDFs\pdf_highlight_log.xlsx</code> に全顧客の処理結果がまとめて記録されます。<br>
+    各顧客フォルダにLogフォルダは不要です。
+  </div>
+  <div class="box box-warn">
+    <div class="box-title">⚠ 注意</div>
+    PDFファイルは必ず <strong>Input フォルダ</strong>に入れてください。<br>
+    処理中はPDFファイルを開かないでください。
+  </div>
+</div>
+
+<!-- SECTION 4 -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div class="section-title">Excelマスターファイルの設定</div>
+  </div>
+  <p><code>highlight_master_v3.xlsx</code> を開いて、Masterシートに入力します。</p>
+  <div class="excel-mock">
+    <div class="excel-header">📊 highlight_master_v3.xlsx — Masterシート</div>
+    <div style="overflow-x:auto;">
+      <table class="excel-table">
+        <tr>
+          <th>Customer</th><th>CustomerFolder</th><th>DestinationFolder</th>
+          <th>Keywords</th><th>CaseSensitive</th><th>WholeWord</th>
+          <th>Color</th><th>Begin_Page</th><th>End_Page</th>
+        </tr>
+        <tr>
+          <td>CustomerA</td><td>C:\PDFs\CustomerA</td><td>C:\PDFs\CustomerA\Done</td>
+          <td>Finalize,Opening,Factory</td><td>FALSE</td><td>FALSE</td>
+          <td>Blue</td><td>1</td><td>3</td>
+        </tr>
+        <tr>
+          <td>CustomerB</td><td>C:\PDFs\CustomerB</td><td>C:\PDFs\CustomerB\Done</td>
+          <td>Contract,Delivery,Approval</td><td>FALSE</td><td>FALSE</td>
+          <td>Yellow</td><td>1</td><td>3</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <br>
+  <table class="status-table">
+    <tr><th>列名</th><th>内容</th><th>例</th></tr>
+    <tr><td><strong>Customer</strong></td><td>顧客名（ログに表示）</td><td>CustomerA</td></tr>
+    <tr><td><strong>CustomerFolder</strong></td><td>顧客フォルダのパス（InputフォルダはここのInput）</td><td>C:\PDFs\CustomerA</td></tr>
+    <tr><td><strong>DestinationFolder</strong></td><td>ハイライト済PDFの移動先</td><td>C:\PDFs\CustomerA\Done</td></tr>
+    <tr><td><strong>Keywords</strong></td><td>検索キーワード（カンマ区切り、スペースなし）</td><td>PPAP,IMDS,RoHS</td></tr>
+    <tr><td><strong>CaseSensitive</strong></td><td>大文字小文字を区別するか</td><td>FALSE</td></tr>
+    <tr><td><strong>WholeWord</strong></td><td>完全一致のみ検索するか</td><td>FALSE</td></tr>
+    <tr><td><strong>Color</strong></td><td>ハイライトの色</td><td>Blue / Yellow / Green</td></tr>
+    <tr><td><strong>Begin_Page</strong></td><td>検索開始ページ（1から）</td><td>1</td></tr>
+    <tr><td><strong>End_Page</strong></td><td>検索終了ページ（空白=最後まで）</td><td>3</td></tr>
+  </table>
+  <div class="box box-ok">
+    <div class="box-title">✅ 設定変更はそのまま反映されます</div>
+    Excelを保存してRunをクリックするだけで新しい設定が適用されます。<br>
+    ツールを再起動する必要はありません。
+  </div>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div class="section-title">ツールの使い方 — Single folderモード</div>
+  </div>
+  <p>1つの顧客のInputフォルダを手動で選んで処理するモードです。</p>
+
+  <div class="gui-mock">
+    <div class="gui-header">
+      <div class="gui-dot" style="background:#ff5f57;"></div>
+      <div class="gui-dot" style="background:#ffbd2e;"></div>
+      <div class="gui-dot" style="background:#28c840;"></div>
+      <span class="gui-title">PDF Keyword Highlight Tool</span>
+      <span class="gui-sub">Excel-driven · Color &amp; page range · Auto-log</span>
+    </div>
+    <div class="gui-label"><div class="gui-num">1</div> Configuration file</div>
+    <div class="gui-row">
+      <div class="gui-input">C:/PDFTool/highlight_master_v3.xlsx</div>
+      <div class="gui-btn">Browse</div>
+    </div>
+    <div class="gui-label">Processing mode</div>
+    <div class="mode-row">
+      <div class="mode-card active">
+        <div class="mode-title"><div class="mode-radio"><div class="mode-radio-dot"></div></div>Single folder</div>
+        <div class="mode-desc">Select one Input folder manually.</div>
+      </div>
+      <div class="mode-card inactive">
+        <div class="mode-title"><div class="mode-radio-empty"></div>All customers</div>
+        <div class="mode-desc">Process all customers from Excel automatically.</div>
+      </div>
+    </div>
+    <div class="gui-label"><div class="gui-num">2</div> Input folder</div>
+    <div class="gui-row">
+      <div class="gui-input">C:\PDFs\CustomerA\Input</div>
+      <div class="gui-btn">Browse</div>
+    </div>
+    <div class="gui-chk">
+      <div class="chk-box"></div>
+      Overwrite existing files in Destination folder
+    </div>
+    <div class="gui-run">▶  Run — Start Processing</div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>ツールを起動する</h3>
+        <p><code>run_highlight.bat</code> をダブルクリックします。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Excelファイルを選ぶ（Step 01 Browse）</h3>
+        <p><code>highlight_master_v3.xlsx</code> を選択します。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Single folderを選択する</h3>
+        <p>Processing modeの <strong>「Single folder」カード</strong> をクリックします（デフォルトで選択済み）。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Inputフォルダを選ぶ（Step 02 Browse）</h3>
+        <p>処理したい顧客の <strong>Input フォルダ</strong> を選択します。<br>
+        例：<code>C:\PDFs\CustomerA\Input</code><br>
+        Excelの CustomerFolder から自動入力されることもあります。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h3>Run をクリックする</h3>
+        <p>確認ダイアログが出たら「はい」をクリックします。<br>
+        選択したInputフォルダの顧客ルールだけが処理されます。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="box box-info">
+    <div class="box-title">💡 Single folderの動作</div>
+    選択したInputフォルダに一致する顧客のルールをExcelから自動で探して処理します。<br>
+    例：<code>C:\PDFs\CustomerA\Input</code> を選択 → CustomerAのルールだけ処理
+  </div>
+</div>
+
+<!-- SECTION 6 -->
+<div class="section" id="s6">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div class="section-title">ツールの使い方 — All customersモード <span class="new-badge">NEW</span></div>
+  </div>
+  <p>Excelに登録した全顧客を一括で処理するモードです。フォルダを手動で選ぶ必要がありません。</p>
+
+  <div class="gui-mock">
+    <div class="gui-header">
+      <div class="gui-dot" style="background:#ff5f57;"></div>
+      <div class="gui-dot" style="background:#ffbd2e;"></div>
+      <div class="gui-dot" style="background:#28c840;"></div>
+      <span class="gui-title">PDF Keyword Highlight Tool</span>
+    </div>
+    <div class="gui-label"><div class="gui-num">1</div> Configuration file</div>
+    <div class="gui-row">
+      <div class="gui-input">C:/PDFTool/highlight_master_v3.xlsx</div>
+      <div class="gui-btn">Browse</div>
+    </div>
+    <div class="gui-label">Processing mode</div>
+    <div class="mode-row">
+      <div class="mode-card inactive">
+        <div class="mode-title"><div class="mode-radio-empty"></div>Single folder</div>
+        <div class="mode-desc">Select one Input folder manually.</div>
+      </div>
+      <div class="mode-card active">
+        <div class="mode-title"><div class="mode-radio"><div class="mode-radio-dot"></div></div>All customers</div>
+        <div class="mode-desc">Process all customers from Excel automatically.</div>
+      </div>
+    </div>
+    <div class="all-customers">
+      <div class="ac-title">Customers to process — from Excel</div>
+      <div class="ac-row">
+        <div class="ac-name">CustomerA</div>
+        <div class="ac-kw">Finalize, Opening, Factory</div>
+        <div class="ac-badge badge-blue">Blue</div>
+        <div class="ac-pages">p.1–3</div>
+      </div>
+      <div class="ac-row">
+        <div class="ac-name">CustomerB</div>
+        <div class="ac-kw">Contract, Delivery, Approval</div>
+        <div class="ac-badge badge-yellow">Yellow</div>
+        <div class="ac-pages">p.1–3</div>
+      </div>
+      <div class="ac-row">
+        <div class="ac-name">CustomerC</div>
+        <div class="ac-kw">Budget, Report, Meeting</div>
+        <div class="ac-badge badge-green">Green</div>
+        <div class="ac-pages">p.1–3</div>
+      </div>
+    </div>
+    <div class="gui-chk">
+      <div class="chk-box"></div>
+      Overwrite existing files in Destination folder
+    </div>
+    <div class="gui-run">▶  Run — Process All Customers</div>
+    <div class="gui-progress"><div class="gui-progress-bar"></div></div>
+    <div class="gui-stats">
+      <div class="gui-stat"><div class="gui-stat-num" style="color:#5DCAA5;">3</div><div class="gui-stat-label">Completed</div></div>
+      <div class="gui-stat"><div class="gui-stat-num" style="color:#EF9F27;">0</div><div class="gui-stat-label">Skipped</div></div>
+      <div class="gui-stat"><div class="gui-stat-num" style="color:#F09595;">0</div><div class="gui-stat-label">Errors</div></div>
+    </div>
+    <div class="gui-log">
+      <div class="gui-log-title">Processing log</div>
+      <div class="log-head">All customers mode — 3 customer(s).</div>
+      <div class="log-info">Shared log: C:\PDFs\pdf_highlight_log.xlsx&nbsp;&nbsp;Overwrite: OFF</div>
+      <div class="log-head">── CustomerA ── C:\PDFs\CustomerA\Input</div>
+      <div class="log-ok">&nbsp;&nbsp; OK &nbsp;&nbsp; document1.pdf — 16 hits</div>
+      <div class="log-head">── CustomerB ── C:\PDFs\CustomerB\Input</div>
+      <div class="log-ok">&nbsp;&nbsp; OK &nbsp;&nbsp; document2.pdf — 9 hits</div>
+      <div class="log-head">── CustomerC ── C:\PDFs\CustomerC\Input</div>
+      <div class="log-ok">&nbsp;&nbsp; OK &nbsp;&nbsp; document3.pdf — 7 hits</div>
+      <div class="log-head">Done. 3 completed | 0 skipped | 0 errors</div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Excelファイルを選ぶ（Step 01 Browse）</h3>
+        <p><code>highlight_master_v3.xlsx</code> を選択します。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>All customersをクリックする</h3>
+        <p><strong>「All customers」カード</strong> をクリックします。<br>
+        全顧客の名前・キーワード・色・ページ範囲が一覧表示されます。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Run をクリックする</h3>
+        <p>確認ダイアログにPDF件数が表示されます。「はい」をクリックすると全顧客を処理します。<br>
+        各顧客の <code>CustomerFolder\Input\</code> が自動で使われます。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="box box-info">
+    <div class="box-title">💡 All customersモードのフォルダルール</div>
+    ExcelのCustomerFolderの中にあるInputフォルダが自動で使われます。<br>
+    例：CustomerFolder = <code>C:\PDFs\CustomerA</code> の場合<br>
+    → <code>C:\PDFs\CustomerA\Input\</code> のPDFが処理されます。
+  </div>
+</div>
+
+<!-- SECTION 7 -->
+<div class="section" id="s7">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div class="section-title">上書き処理（Overwrite） <span class="new-badge">NEW</span></div>
+  </div>
+
+  <table class="status-table">
+    <tr><th>チェック状態</th><th>動作</th><th>使うタイミング</th></tr>
+    <tr>
+      <td>☐ OFF（デフォルト）</td>
+      <td>Doneフォルダに同名ファイルがあればスキップ</td>
+      <td>通常の処理（新しいPDFだけ処理したい時）</td>
+    </tr>
+    <tr>
+      <td>☑ ON</td>
+      <td>Doneフォルダの同名ファイルを削除して再処理</td>
+      <td>ページ範囲や色を変えて再処理したい時</td>
+    </tr>
+  </table>
+
+  <div class="box box-warn">
+    <div class="box-title">⚠ Overwrite ONの注意</div>
+    Doneフォルダの既存ファイルが削除されます。<br>
+    必要なファイルは事前にバックアップしてください。
+  </div>
+
+  <div class="box box-ok">
+    <div class="box-title">✅ 使い方の例</div>
+    Excelでページ範囲を変更（例：1–3 → 2–5）→ Excelを保存 →<br>
+    ツールでOverwriteをONにして Run → 新しいページ範囲で再処理される
+  </div>
+</div>
+
+<!-- SECTION 8 -->
+<div class="section" id="s8">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div class="section-title">処理結果の見方</div>
+  </div>
+
+  <p><strong>ログファイル：</strong> <code>C:\PDFs\pdf_highlight_log.xlsx</code> — 全顧客の処理結果がここに記録されます。</p>
+  <br>
+
+  <table class="status-table">
+    <tr><th>ステータス</th><th>意味</th><th>対応</th></tr>
+    <tr>
+      <td><span class="tag tag-ok">OK_HITS_n</span></td>
+      <td>処理成功。n件のキーワードが見つかった</td>
+      <td>問題なし</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-ok">OK_HITS_0</span></td>
+      <td>処理成功。キーワードは見つからなかった</td>
+      <td>キーワードのスペルやページ範囲を確認</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-skip">SKIPPED_EXISTS</span></td>
+      <td>同名ファイルが移動先に存在するためスキップ</td>
+      <td>Overwrite ONにして再実行、または手動で削除</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-err">ERROR</span></td>
+      <td>エラーが発生した</td>
+      <td>PDFが開いていないか確認。エラー内容を確認</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-skip">CANCELLED</span></td>
+      <td>Stopボタンで停止した</td>
+      <td>再度Runを押せば続きから処理できます</td>
+    </tr>
+  </table>
+</div>
+
+<!-- SECTION 9 -->
+<div class="section" id="s9">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <div class="section-title">ハイライト色の一覧</div>
+  </div>
+  <p>Excelの <strong>Color 列</strong>に以下の名前を入力してください。</p>
+  <div class="color-grid">
+    <div class="color-chip" style="background:#ADD8E6;color:#0a3a5c;">Blue</div>
+    <div class="color-chip" style="background:#FFEC3E;color:#5a4000;">Yellow</div>
+    <div class="color-chip" style="background:#98EE99;color:#0a3a1a;">Green</div>
+    <div class="color-chip" style="background:#FFB6C1;color:#5a0020;">Pink</div>
+    <div class="color-chip" style="background:#FFBF4D;color:#5a2800;">Orange</div>
+    <div class="color-chip" style="background:#CC99FF;color:#2a005a;">Purple</div>
+    <div class="color-chip" style="background:#FF9999;color:#5a0000;">Red</div>
+    <div class="color-chip" style="background:#f0f0f0;color:#444;">Default<br><small>（Blue）</small></div>
+  </div>
+  <div class="box box-ok">
+    <div class="box-title">✅ 透明度について</div>
+    ハイライトの透明度は自動で40%に設定されています。<br>
+    キーワードの文字がハイライトの下でもはっきり読めます。
+  </div>
+</div>
+
+<!-- SECTION 10 -->
+<div class="section" id="s10">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div class="section-title">よくある質問</div>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Q</div>
+      <div class="step-content">
+        <h3>ページ範囲を変えて再処理したい</h3>
+        <p>Excelを開いてページ範囲を変更 → 保存 → ツールでOverwriteをONにして Run。<br>
+        ツールの再起動は不要です。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">Q</div>
+      <div class="step-content">
+        <h3>全ページを検索したい</h3>
+        <p>End_Page 列を空白にしてください。自動で最後のページまで検索します。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">Q</div>
+      <div class="step-content">
+        <h3>キーワードが見つからない（OK_HITS_0）</h3>
+        <p>• キーワードのスペルを確認する<br>
+        • Begin_Page / End_Page の範囲内にキーワードがあるか確認する<br>
+        • PDFがスキャン画像の場合はテキストが含まれていない可能性があります</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">Q</div>
+      <div class="step-content">
+        <h3>原本PDFはどうなりますか？</h3>
+        <p>原本はInputフォルダにそのまま残ります。<br>
+        ハイライトされたコピーがDoneフォルダに移動します。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">Q</div>
+      <div class="step-content">
+        <h3>ログファイルはどこにありますか？</h3>
+        <p><code>C:\PDFs\pdf_highlight_log.xlsx</code> に全顧客の処理結果が記録されています。<br>
+        処理完了後に「Open Log」ボタンをクリックすると自動で開きます。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 11 -->
+<div class="section" id="s11">
+  <div class="section-header">
+    <div class="section-num">11</div>
+    <div class="section-title">エラーが出たときは</div>
+  </div>
+  <table class="status-table">
+    <tr><th>エラーの内容</th><th>原因</th><th>解決方法</th></tr>
+    <tr><td><code>No module named 'fitz'</code></td><td>PyMuPDFが未インストール</td><td><code>python -m pip install pymupdf</code> を実行</td></tr>
+    <tr><td><code>No module named 'openpyxl'</code></td><td>openpyxlが未インストール</td><td><code>python -m pip install openpyxl</code> を実行</td></tr>
+    <tr><td><code>Sheet 'Master' not found</code></td><td>Excelのシート名が違う</td><td>シート名を「Master」に変更する</td></tr>
+    <tr><td><code>No PDF files found</code></td><td>InputフォルダにPDFがない</td><td>PDFをInputフォルダに入れる</td></tr>
+    <tr><td><code>Permission denied</code></td><td>PDFが別のアプリで開かれている</td><td>PDFを閉じてから再実行する</td></tr>
+    <tr><td><code>Missing required columns</code></td><td>Excel列名が正しくない</td><td>列名がCustomer、CustomerFolder等と一致しているか確認</td></tr>
+    <tr><td><code>Input folder not found</code></td><td>InputフォルダのパスがExcelと違う</td><td>CustomerFolderのパスとInputフォルダが存在するか確認</td></tr>
+  </table>
+  <div class="box box-info">
+    <div class="box-title">💡 解決しない場合</div>
+    エラーメッセージをそのままコピーして担当者に送ってください。
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <strong>PDF Keyword Highlight Tool v2.0</strong><br>
+  作成者: Kaori Kashiwagi — Business Systems &amp; Automation Analyst<br>
+  Python · PyMuPDF · openpyxl · tkinter
+</div>
+
+</div>
+</body>
+</html>
